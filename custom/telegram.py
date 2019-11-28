@@ -8,7 +8,7 @@ from telethon.errors.rpcerrorlist import PhoneNumberInvalidError
 
 class TelegramAPI:
 
-    def __init__(self, api_id, api_hash):
+    def __init__(self, api_id, api_hash, session_file=None):
         # try:
         #     this_phone = PhoneNumber(phone)
         # except ValueError as e:
@@ -35,59 +35,57 @@ class TelegramAPI:
         else:
             self.api_hash = api_hash
 
-    def dump(self, path):
+        self.session_file = session_file
+
+    def dump_proj(self, path):
         proj_data = {"api_id": self.api_id, "api_hash": self.api_hash}
         with open(os.path.join(path, '.tgscrape.proj'), 'w') as file:
             json.dump(proj_data, fp=file)
             file.close()
 
-    def authenticate(self, path=None, session_file=None):
+    def authenticate(self, path=None):
 
-        if session_file is None:
+        if self.session_file is None:
             if path is None:
                 raise ValueError("Argument 'path' cannot be None")
 
-            self.session_path = os.path.join(path, 'tgscrape.session')
-        else:
-            self.session_path = session_file
-
-        rm_session = False
+            session_file = os.path.join(path, 'tgscrape.session')
 
         err_msg = 'Cannot authenticate with Telegram API: '
 
         try:
-            client = TelegramClient(self.session_path, self.api_id, self.api_hash).start()
+            client = TelegramClient(self.session_file, self.api_id, self.api_hash).start()
         except PhoneNumberInvalidError as e:
-            rm_session = True
             raise ValueError(err_msg + 'invalid phone number!')
         except RuntimeError as e:
-            rm_session = True
             raise ValueError(err_msg + 'invalid code provided!')
         except Exception as e:
-            rm_session = True
             raise Exception(err_msg + '%s!' % type(e))
-        finally:
-            if rm_session:
-                os.remove(self.session_path)
 
     def connect(self):
 
         err_msg = 'Cannot connect to Telegram API'
         try:
-            client = TelegramClient(self.session_path, self.api_id, self.api_hash).start()
+            self.client = TelegramClient(self.session_file, self.api_id, self.api_hash).start()
         except:
             raise RuntimeError('Cannot start Telegram Client!')
         else:
-            with client:
+            self.is_connected = False
+            with self.client as client:
                 try:
                     client.connect()
                     is_connected = client.is_connected()
+                    self.is_connected = is_connected
                 except Exception as e:
                     raise Exception(err_msg + ': %s!' % type(e))
-            if not is_connected:
+            if not self.is_connected:
                 raise ConectionError(err_msg)
 
+    def disconnect(self):
         try:
-            client.disconnect()
+            with self.client as client:
+                client.disconnect()
         except Exception as e:
             raise RuntimeError('Cannot disconnect from Telegram API.')
+        else:
+            self.is_connected = False

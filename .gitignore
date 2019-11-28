@@ -6,3 +6,6 @@ venv/
 .DS_Store
 notes/
 *.egg-info/
+dump/
+temp_/
+tests/
