@@ -2,11 +2,22 @@
 
 **Still Work in Progress!!!**
 
+## Install 
+
+```shell
+git clone -- tgscrape https://github.com/haukelicht/tgscrape-cli.git
+# navigate to your local 
+cd tgscrape
+pip install .
+pip install -r requirements.txt
+tgscrape --help
+```
 
 ## Use
 
 Initialize a new project and first steps
-```
+
+```shell
 mkdir new_project
 cd new_project
 tgscrape --verbose init . --api-id <int> --api-hash <str>
@@ -16,7 +27,8 @@ tgscrape chats 'opencryptodiscussion' --out-path 'dump' --out-name '%s.json'
 ```
 
 Get help:
-```
+
+```shell
 # view help
 tgscrape --help
 # view help for init subcommand
