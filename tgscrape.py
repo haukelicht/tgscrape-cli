@@ -193,6 +193,9 @@ def init(context, path, init_location, api_id, api_hash, session_file):
               default='',
               help="Name stem of file with chat data (chat name will be prefixed). Default is '<chat>_<%Y-%m-%dT%H%M%S>.json'"
               )
+@click.option('--no-info', is_flag=True, help="Do not get chat channel information data.", default=True)
+@click.option('--no-messages', is_flag=True, help="Do not get chat messages data.", default=True)
+@click.option('--no-participants', is_flag=True, help="Do not get chat participants data.", default=True)
 @click.option('--check-track',
               is_flag=True,
               help="Check whether to track a chat (chat-level boolean flag in YAML/JSON dictionary with key 'track')."
@@ -204,7 +207,17 @@ def init(context, path, init_location, api_id, api_hash, session_file):
               help='Indentation level of output JSON. Default is 4'
               )
 @pass_context
-def chats(context, entities, out_path, out_name, check_track, indent):
+def chats(
+    context,
+    entities,
+    out_path,
+    out_name,
+    no_info,
+    no_messages,
+    no_participants,
+    check_track,
+    indent
+):
     """
     Scrape the info, chat history and participants data from (public) a list of chat groups.
 
@@ -282,26 +295,37 @@ def chats(context, entities, out_path, out_name, check_track, indent):
             try:
                 if context.verbose:
                     click.echo('Trying to get data for chat ' + chat)
-                data = client.loop.run_until_complete(get_chat_data(client, chat))
+                data = client.loop.run_until_complete(
+                    get_chat_data(
+                        client,
+                        chat,
+                        info=no_info,
+                        messages=no_messages,
+                        participants=no_participants
+                    )
+                )
             except Exception as e:
                 click.echo('Could not get data for chat ' + chat + ': ' + repr(e))
-
-            if out_name is '':
-                data_str = data.to_json(indent=indent)
-                ind = ' ' * indent
-                re.sub(r'\n', '\n' + ind, data_str)
-                click.echo('{\n' + ind + f'"chat": "{chat}",' + '\n' + ind + f'"chat_data": {data_str}' + '\n}')
             else:
-                try:
-                    file = out_name % chat
-                except:
-                    file = f'{chat}_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.json'
+                if out_name is '':
+                    data_str = data.to_json(indent=indent)
+                    ind = ' ' * indent
+                    re.sub(r'\n', '\n' + ind, data_str)
+                    click.echo('{\n' + ind + f'"chat": "{chat}",' + '\n' + ind + f'"chat_data": {data_str}' + '\n}')
+                else:
+                    try:
+                        if re.search(r'%s', out_name):
+                            file = out_name % chat
+                        else:
+                            file = out_name
+                    except:
+                        file = f'{chat}_{datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}.json'
 
-                fp = os.path.join(out_path, file)
-                try:
-                    with open(fp, 'w', encoding='utf-8') as dest:
-                        data.to_json(dest, indent=indent)
-                except:
-                    out[chat] = chat.to_json()
+                    fp = os.path.join(out_path, file)
+                    try:
+                        with open(fp, 'w', encoding='utf-8') as dest:
+                            data.to_json(dest, indent=indent)
+                    except:
+                        out[chat] = data.to_json()
 
         client.disconnect()
