@@ -66,6 +66,7 @@ pip freeze > requirements.txt
 ```
 
 
-## Inspired by 
+## Credit
 
-- [`tgscrape`](https://github.com/logr4y/tgscrape)
+- developed using [`click`](https://palletsprojects.com/p/click/)
+- not inspired by [`tgscrape`](https://github.com/logr4y/tgscrape), same name though (found out only later ¯\_(ツ)_/¯)
