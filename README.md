@@ -15,6 +15,8 @@ tgscrape --help
 
 ## Use
 
+## Initialize a tgscrape project
+
 In order to use `tgscrape`, you need a valid Telegram API ID and hash.
 Follow these instructions: https://core.telegram.org/api/obtaining_api_id#obtaining-api-id
  
@@ -40,13 +42,14 @@ echo "tgscrape.session" >> .gitignore
 echo ".tgscrape.proj" >> .gitignore
 ```
 
-Try it out:
+### Try it out
 
 ```shell
 tgscrape chats 'opencryptodiscussion' --out-path 'dump' --out-name '%s.json' 
 ```
+This writes a formatted JSON file named 'opencryptodiscussion.json' to your current working directory
 
-Get help:
+### Get help
 
 ```shell
 # view help
