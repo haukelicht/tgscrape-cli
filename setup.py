@@ -5,6 +5,7 @@ setup(
     name='tgscrape',
     version='0.0.1',
     py_modules=['tgscrape'],
+    packages=['custom'],
     install_requires=[
         'Click',
     ],
