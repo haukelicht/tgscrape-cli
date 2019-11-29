@@ -26,13 +26,13 @@ Initialize a new project and first steps
 mkdir new_project
 cd new_project
 tgscrape --verbose init . --api-id <int> --api-hash <str>
-# enter phone number
+# enter phone number (format +<int>)
 # enter confirmation code that is send to your Telegram account
 ```
 **Important**: authenticating with `tgscrape init` writes two files to your current working directory
 
 - 'tgscrape.session' (a Telethon session file)
-- '.tgscrape.proj' (a hiden file containing your API ID and hast)
+- '.tgscrape.proj' (a hidden file containing your API ID and hast)
 
 Make sure to not share these files with any third-party
 Most importantly, **add them to your .gitignore**!
@@ -74,7 +74,7 @@ Use a virtual environment
 # create a virtual environment
 virtualenv venv
 # activate virtual environment
-. venv/bin/activate
+. venv/bin/activate # on Windows, use: cd venv\Lib and "activate"
 # install required packages
 pip install -r requirements.txt
 ```
