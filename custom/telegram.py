@@ -54,19 +54,24 @@ class TelegramAPI:
         err_msg = 'Cannot authenticate with Telegram API: '
 
         try:
-            client = TelegramClient(self.session_file, self.api_id, self.api_hash).start()
+            client = TelegramClient(self.session_file, self.api_id, self.api_hash)
+            client.start()
         except PhoneNumberInvalidError as e:
             raise ValueError(err_msg + 'invalid phone number!')
         except RuntimeError as e:
             raise ValueError(err_msg + 'invalid code provided!')
         except Exception as e:
             raise Exception(err_msg + '%s!' % type(e))
+        else:
+            self.client = client
 
     def connect(self):
 
         err_msg = 'Cannot connect to Telegram API'
         try:
-            self.client = TelegramClient(self.session_file, self.api_id, self.api_hash).start()
+            if not hasattr(self, 'client'):
+                self.client = TelegramClient(self.session_file, self.api_id, self.api_hash)
+            self.client.start()
         except:
             raise RuntimeError('Cannot start Telegram Client!')
         else:
@@ -74,8 +79,7 @@ class TelegramAPI:
             with self.client as client:
                 try:
                     client.connect()
-                    is_connected = client.is_connected()
-                    self.is_connected = is_connected
+                    self.is_connected = client.is_connected()
                 except Exception as e:
                     raise Exception(err_msg + ': %s!' % type(e))
             if not self.is_connected:

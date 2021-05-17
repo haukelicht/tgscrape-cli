@@ -35,15 +35,16 @@ pass_context = click.make_pass_decorator(Context, ensure=True)
               help='Print log messages to std out.'
               )
 @click.option('--set-pwd',
-              type=click.Path(),
+              type=str,
               help='Set path of working directory.'
+              default='.'
               )
 @pass_context
 def cli(context, verbose, set_pwd):
     context.verbose = verbose
-    if set_pwd is None:
+    if set_pwd is '.':
         set_pwd = os.getcwd()
-    context.set_pwd = set_pwd
+    context.set_pwd = os.path.expanduser(set_pwd)
 
 
 @cli.command()
@@ -141,12 +142,19 @@ def init(context, path, init_location, api_id, api_hash, session_file):
         else:
             api_conn.dump_proj(path=init_location)
 
+    click.echo(api_conn.session_file)
+
     # authenticate if session file not provided
     if not os.path.isfile(session_file):
         try:
             api_conn.authenticate(path=init_location)
         except Exception as e:
             raise click.ClickException(e)
+
+    if hasattr(api_conn, 'client'):
+        click.echo(typeof(api_conn.client))
+    else:
+        click.echo('no client')
 
     try:
         api_conn.connect()
@@ -163,6 +171,9 @@ def init(context, path, init_location, api_id, api_hash, session_file):
     except Exception as e:
         raise click.ClickException(e)
 
+    if hasattr(api_conn, 'is_connected'):
+        click.echo(api_conn.is_connected)
+
     try:
         api_conn.disconnect()
     except RuntimeError as e:
@@ -171,8 +182,8 @@ def init(context, path, init_location, api_id, api_hash, session_file):
         raise click.ClickException('Unknown error raised when trying to disconnect client: ' + type(e))
 
     if context.verbose:
-        click.echo(f'Successfully initialized tgscrape project on path {path}')
-        click.echo(f'Session information written to {session_file}')
+        click.echo(f'Successfully initialized tgscrape project on path {init_location}')
+        click.echo(f'Session information written to {api_conn.session_file}')
         click.echo(f'Project data written to {proj_file}')
 
 
