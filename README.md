@@ -9,7 +9,7 @@ git clone -- tgscrape https://github.com/haukelicht/tgscrape-cli.git
 # navigate to your local 
 cd tgscrape
 pip install .
-pip install -r requirements.txt
+pip install -r requirements.txt # for windows, you might have to use pip install -r requirements.txt --user
 tgscrape --help
 ```
 
