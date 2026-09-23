@@ -15,4 +15,4 @@ six==1.13.0
 Telethon==1.10.8
 tgscrape==0.0.1
 wcwidth==0.1.7
-zipp==0.6.0
+zipp==3.19.1
